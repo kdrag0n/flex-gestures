@@ -75,7 +75,7 @@ class MainActivity : AppCompatActivity() {
 
             imageView.setImageBitmap(bitmap)
 
-            timeView.setText("${System.currentTimeMillis() - beginTime} ms taken", TextView.BufferType.NORMAL)
+            timeView.setText(getString(R.string.time_ms, System.currentTimeMillis() - beginTime), TextView.BufferType.NORMAL)
 
             image.close()
             reader.close()

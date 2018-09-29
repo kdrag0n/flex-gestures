@@ -1,3 +1,7 @@
 <resources>
     <string name="app_name">Flex Gestures</string>
+    <string name="screenshot">Screenshot</string>
+    <string name="time_ms">%d ms</string>
+    <string name="hide_nav">Hide navigation bar</string>
+    <string name="show_nav">Show navigation bar</string>
 </resources>
