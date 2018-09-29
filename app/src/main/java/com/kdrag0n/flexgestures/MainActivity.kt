@@ -63,9 +63,11 @@ class MainActivity : AppCompatActivity() {
 
             val image = reader.acquireLatestImage()
             val buffer = image.planes[0].buffer
-            val rowPadding = image.planes[0].rowStride - image.planes[0].pixelStride * width
+            val rowStride = image.planes[0].rowStride
+            val pixelStride = image.planes[0].pixelStride
+            val rowPadding = rowStride - pixelStride * width
 
-            val bmWidth = width + rowPadding / image.planes[0].pixelStride
+            val bmWidth = width + rowPadding / pixelStride
             val bitmap = Bitmap.createBitmap(bmWidth, height, Bitmap.Config.ARGB_8888)
             bitmap.copyPixelsFromBuffer(buffer)
 
@@ -73,6 +75,7 @@ class MainActivity : AppCompatActivity() {
 
             timeView.setText("${System.currentTimeMillis() - beginTime} ms taken", TextView.BufferType.NORMAL)
 
+            image.close()
             reader.close()
         }, null)
     }
