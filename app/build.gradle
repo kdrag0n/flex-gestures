@@ -7,7 +7,7 @@ android {
     defaultConfig {
         applicationId "com.kdrag0n.flexgestures"
         minSdkVersion 21
-        targetSdkVersion 28
+        targetSdkVersion 27
         versionCode 1000
         versionName "1.0"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"

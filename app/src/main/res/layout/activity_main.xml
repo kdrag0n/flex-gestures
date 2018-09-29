@@ -7,15 +7,27 @@
     tools:context=".MainActivity">
 
     <Button
+        android:id="@+id/screenshotBtn"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:id="@+id/bt"
         android:text="@string/screenshot" />
 
     <TextView
         android:id="@+id/timeView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content" />
+
+    <Button
+        android:id="@+id/hideNavBtn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/hide_nav"/>
+
+    <Button
+        android:id="@+id/showNavBtn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/show_nav"/>
 
     <ImageView
         android:id="@+id/imageView"

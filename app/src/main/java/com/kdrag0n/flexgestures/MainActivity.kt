@@ -1,5 +1,6 @@
 package com.kdrag0n.flexgestures
 
+import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
@@ -16,6 +17,7 @@ import android.util.DisplayMetrics
 import android.widget.TextView
 import androidx.annotation.UiThread
 import kotlinx.android.synthetic.main.activity_main.*
+import java.lang.reflect.Method
 
 class MainActivity : AppCompatActivity() {
     private lateinit var projectionManager: MediaProjectionManager
@@ -28,13 +30,20 @@ class MainActivity : AppCompatActivity() {
 
         projectionManager = getSystemService(Context.MEDIA_PROJECTION_SERVICE) as MediaProjectionManager
 
-        bt.setOnClickListener {
+        screenshotBtn.setOnClickListener {
             beginTime = System.currentTimeMillis()
             if (!::projection.isInitialized) {
                 startActivityForResult(projectionManager.createScreenCaptureIntent(), REQUEST_CODE_RECORD)
             } else {
                 takeScreenshot()
             }
+        }
+
+        hideNavBtn.setOnClickListener {
+            hideNavBar()
+        }
+        showNavBtn.setOnClickListener {
+            showNavBar()
         }
     }
 
@@ -80,6 +89,37 @@ class MainActivity : AppCompatActivity() {
             image.close()
             reader.close()
         }, null)
+    }
+
+    @SuppressLint("PrivateApi")
+    private fun <T: Any> getWmMethod(name: String, vararg types: Class<T>): Method {
+        val wmClass = Class.forName("android.view.IWindowManager")
+        return wmClass.getMethod(name, *types)
+    }
+
+    @SuppressLint("PrivateApi")
+    private fun getWmService(): Any {
+        return Class.forName("android.view.WindowManagerGlobal")
+                .getMethod("getWindowManagerService")
+                .invoke(null)
+    }
+
+    @UiThread
+    private fun hideNavBar() {
+        val navHeightId = resources.getIdentifier("navigation_bar_height", "dimen", "android")
+        val navHeight = resources.getDimensionPixelSize(navHeightId)
+
+        getWmMethod("setOverscan", Int::class.java, Int::class.java, Int::class.java, Int::class.java, Int::class.java)
+                .invoke(getWmService(), 0, 0, 0, 0, -navHeight)
+    }
+
+    @UiThread
+    private fun showNavBar() {
+        val navHeightId = resources.getIdentifier("navigation_bar_height", "dimen", "android")
+        val navHeight = resources.getDimensionPixelSize(navHeightId)
+
+        getWmMethod("setOverscan", Int::class.java, Int::class.java, Int::class.java, Int::class.java, Int::class.java)
+                .invoke(getWmService(), 0, 0, 0, 0, -navHeight)
     }
 
     private class DisplayCallbacks : VirtualDisplay.Callback() {
