@@ -16,7 +16,7 @@ import android.util.DisplayMetrics
 import android.widget.TextView
 import androidx.annotation.UiThread
 import androidx.appcompat.widget.Toolbar
-import com.kdrag0n.utils.PrivateWindowManager as PWM
+import com.kdrag0n.flexgestures.utils.PrivateWindowManager as PWM
 import kotlinx.android.synthetic.main.activity_main.*
 
 class MainActivity : AppCompatActivity() {

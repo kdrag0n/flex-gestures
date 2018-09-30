@@ -1,4 +1,4 @@
-package com.kdrag0n.utils
+package com.kdrag0n.flexgestures.utils
 
 import android.annotation.SuppressLint
 import java.lang.reflect.Method
