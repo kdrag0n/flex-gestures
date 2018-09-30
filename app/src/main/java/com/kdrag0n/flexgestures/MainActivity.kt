@@ -16,10 +16,15 @@ import android.util.DisplayMetrics
 import android.widget.TextView
 import androidx.annotation.UiThread
 import androidx.appcompat.widget.Toolbar
+import androidx.core.content.ContextCompat
 import com.kdrag0n.flexgestures.utils.PrivateWindowManager as PWM
 import kotlinx.android.synthetic.main.activity_main.*
 
 class MainActivity : AppCompatActivity() {
+    companion object {
+        private const val REQUEST_CODE_RECORD = 1
+    }
+
     private lateinit var projectionManager: MediaProjectionManager
     private lateinit var projection: MediaProjection
     private var beginTime = System.currentTimeMillis()
@@ -40,6 +45,11 @@ class MainActivity : AppCompatActivity() {
             } else {
                 takeScreenshot()
             }
+        }
+
+        serviceBtn.setOnClickListener {
+            val intent = Intent(this, GestureService::class.java)
+            ContextCompat.startForegroundService(this, intent)
         }
 
         hideNavBtn.setOnClickListener {
@@ -116,9 +126,5 @@ class MainActivity : AppCompatActivity() {
 
         override fun onStopped() {
         }
-    }
-
-    companion object {
-        private const val REQUEST_CODE_RECORD = 1
     }
 }

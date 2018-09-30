@@ -3,7 +3,11 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="com.kdrag0n.flexgestures">
 
-    <uses-permission android:name="android.permission.WRITE_SECURE_SETTINGS"
+    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+
+    <uses-permission
+        android:name="android.permission.WRITE_SECURE_SETTINGS"
         tools:ignore="ProtectedPermissions" />
 
     <application
@@ -13,7 +17,8 @@
         android:roundIcon="@mipmap/ic_launcher"
         android:supportsRtl="true"
         tools:ignore="GoogleAppIndexingWarning">
-        <activity android:name=".MainActivity"
+        <activity
+            android:name=".MainActivity"
             android:theme="@style/LaunchTheme">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -21,6 +26,11 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <service
+            android:name=".GestureService"
+            android:enabled="true"
+            android:exported="false" />
     </application>
 
 </manifest>

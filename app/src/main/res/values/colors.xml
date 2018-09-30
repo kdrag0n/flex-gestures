@@ -15,4 +15,6 @@
     <color name="android_teal">#008577</color>
     <color name="android_teal_dark">#00574B</color>
     <color name="android_pink">#D81B60</color>
+
+    <color name="debug_overlay_bg">#40000000</color>
 </resources>
