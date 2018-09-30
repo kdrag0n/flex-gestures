@@ -44,7 +44,7 @@ class GestureService : Service() {
                     LayoutParams.TYPE_APPLICATION_OVERLAY
                 else
                     LayoutParams.TYPE_PHONE,
-                LayoutParams.FLAG_NOT_FOCUSABLE or LayoutParams.FLAG_NOT_TOUCH_MODAL,
+                LayoutParams.FLAG_NOT_FOCUSABLE or LayoutParams.FLAG_NOT_TOUCH_MODAL or LayoutParams.FLAG_NOT_TOUCHABLE,
                 PixelFormat.TRANSLUCENT
         )
 
@@ -78,8 +78,9 @@ class GestureService : Service() {
         manager?.createNotificationChannel(channel)
 
         val notification = NotificationCompat.Builder(this, SERVICE_NOTIFICATION_CHANNEL)
-                .setContentTitle(getString(R.string.service_notification_title, getString(R.string.app_name)))
-                .setContentText(getString(R.string.service_notification_content))
+                .setStyle(NotificationCompat.BigTextStyle()
+                        .setBigContentTitle(getString(R.string.service_notification_title, getString(R.string.app_name)))
+                        .bigText(getString(R.string.service_notification_content)))
                 .setSmallIcon(R.drawable.ic_touch)
                 .setOnlyAlertOnce(true)
                 .setPriority(NotificationCompat.PRIORITY_MIN)
