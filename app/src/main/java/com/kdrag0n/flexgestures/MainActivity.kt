@@ -16,6 +16,7 @@ import android.os.Bundle
 import android.util.DisplayMetrics
 import android.widget.TextView
 import androidx.annotation.UiThread
+import androidx.appcompat.widget.Toolbar
 import kotlinx.android.synthetic.main.activity_main.*
 import java.lang.reflect.Method
 
@@ -25,8 +26,11 @@ class MainActivity : AppCompatActivity() {
     private var beginTime = System.currentTimeMillis()
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        setTheme(R.style.AppTheme)
         super.onCreate(savedInstanceState)
+
         setContentView(R.layout.activity_main)
+        setSupportActionBar(toolbar_main as Toolbar?)
 
         projectionManager = getSystemService(Context.MEDIA_PROJECTION_SERVICE) as MediaProjectionManager
 

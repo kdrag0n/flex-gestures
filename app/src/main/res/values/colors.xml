@@ -1,6 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="colorPrimary">#008577</color>
-    <color name="colorPrimaryDark">#00574B</color>
-    <color name="colorAccent">#D81B60</color>
+    <color name="background_dark">#212121</color>
+    <color name="bg_contrast_dark">#2b2b2b</color>
+
+    <color name="accent">@color/btn_red</color>
+    <color name="about_ic_color">#cbcbcb</color>
+    <color name="action_fg">#f8f8f8</color>
+
+    <color name="btn_red">#cb6262</color>
+    <color name="btn_green">#48ad70</color>
+    <color name="btn_blue">#6977c9</color>
+    <color name="btn_orange">#ef9757</color>
+
+    <color name="android_teal">#008577</color>
+    <color name="android_teal_dark">#00574B</color>
+    <color name="android_pink">#D81B60</color>
 </resources>
