@@ -17,7 +17,7 @@ class PrivateWindowManager {
         }
 
         fun setOverscan(display: Int, left: Int, top: Int, right: Int, bottom: Int) {
-            getMethod("setOverscan", int, int, int, int)
+            getMethod("setOverscan", int, int, int, int, int)
                     .invoke(service, display, left, top, right, bottom)
         }
     }
