@@ -1,6 +1,5 @@
 package com.kdrag0n.flexgestures
 
-import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
@@ -17,8 +16,8 @@ import android.util.DisplayMetrics
 import android.widget.TextView
 import androidx.annotation.UiThread
 import androidx.appcompat.widget.Toolbar
+import com.kdrag0n.utils.PrivateWindowManager as PWM
 import kotlinx.android.synthetic.main.activity_main.*
-import java.lang.reflect.Method
 
 class MainActivity : AppCompatActivity() {
     private lateinit var projectionManager: MediaProjectionManager
@@ -95,35 +94,17 @@ class MainActivity : AppCompatActivity() {
         }, null)
     }
 
-    @SuppressLint("PrivateApi")
-    private fun <T: Any> getWmMethod(name: String, vararg types: Class<T>): Method {
-        val wmClass = Class.forName("android.view.IWindowManager")
-        return wmClass.getMethod(name, *types)
-    }
-
-    @SuppressLint("PrivateApi")
-    private fun getWmService(): Any {
-        return Class.forName("android.view.WindowManagerGlobal")
-                .getMethod("getWindowManagerService")
-                .invoke(null)
-    }
-
     @UiThread
     private fun hideNavBar() {
         val navHeightId = resources.getIdentifier("navigation_bar_height", "dimen", "android")
         val navHeight = resources.getDimensionPixelSize(navHeightId)
 
-        getWmMethod("setOverscan", Int::class.java, Int::class.java, Int::class.java, Int::class.java, Int::class.java)
-                .invoke(getWmService(), 0, 0, 0, 0, -navHeight)
+        PWM.setOverscan(display = 0, left = 0, top = 0, right = 0, bottom = -navHeight)
     }
 
     @UiThread
     private fun showNavBar() {
-        val navHeightId = resources.getIdentifier("navigation_bar_height", "dimen", "android")
-        val navHeight = resources.getDimensionPixelSize(navHeightId)
-
-        getWmMethod("setOverscan", Int::class.java, Int::class.java, Int::class.java, Int::class.java, Int::class.java)
-                .invoke(getWmService(), 0, 0, 0, 0, -navHeight)
+        PWM.setOverscan(display = 0, left = 0, top = 0, right = 0, bottom = 0)
     }
 
     private class DisplayCallbacks : VirtualDisplay.Callback() {
