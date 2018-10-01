@@ -9,10 +9,7 @@ import android.graphics.PixelFormat
 import android.os.Build
 import android.os.Build.VERSION.SDK_INT as sdk
 import android.os.IBinder
-import android.view.ContextThemeWrapper
-import android.view.Gravity
-import android.view.LayoutInflater
-import android.view.WindowManager
+import android.view.*
 import android.view.WindowManager.LayoutParams
 import android.widget.LinearLayout
 import androidx.core.app.NotificationCompat
@@ -26,7 +23,7 @@ class GestureService : Service() {
     }
 
     private lateinit var windowManager: WindowManager
-    private lateinit var overlayView: LinearLayout
+    private lateinit var view: LinearLayout
 
     override fun onBind(intent: Intent): IBinder? {
         return null
@@ -35,25 +32,28 @@ class GestureService : Service() {
     override fun onCreate() {
         windowManager = getSystemService()!!
 
-        val inflater = LayoutInflater.from(ContextThemeWrapper(this, R.style.AppTheme))
-        overlayView = inflater.inflate(R.layout.overlay_gestures, null, false) as LinearLayout
+        val ctx = ContextThemeWrapper(this, R.style.AppTheme)
+        val inflater = LayoutInflater.from(ctx)
+        view = inflater.inflate(R.layout.overlay_gestures, null, false) as LinearLayout
+
+        val touchView = view.findViewById<View>(R.id.touch_view)
+        val bgColor = if (BuildConfig.DEBUG) R.color.debug_overlay_bg else android.R.color.transparent
+        touchView.setBackgroundColor(ContextCompat.getColor(ctx, bgColor))
 
         val params = LayoutParams(
-                LayoutParams.MATCH_PARENT,
-                LayoutParams.MATCH_PARENT,
+                /* width */ LayoutParams.MATCH_PARENT,
+                /* height */ LayoutParams.WRAP_CONTENT,
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
                     LayoutParams.TYPE_APPLICATION_OVERLAY
                 else
                     LayoutParams.TYPE_PHONE,
-                LayoutParams.FLAG_NOT_FOCUSABLE or LayoutParams.FLAG_NOT_TOUCH_MODAL or LayoutParams.FLAG_NOT_TOUCHABLE,
+                LayoutParams.FLAG_NOT_FOCUSABLE or LayoutParams.FLAG_NOT_TOUCHABLE,
                 PixelFormat.TRANSLUCENT
         )
 
         params.gravity = Gravity.BOTTOM or Gravity.START or Gravity.END
-        //params.x = 64
-        //params.y = 64
 
-        windowManager.addView(overlayView, params)
+        windowManager.addView(view, params)
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
@@ -65,8 +65,8 @@ class GestureService : Service() {
     }
 
     override fun onDestroy() {
-        if (::overlayView.isInitialized) {
-            windowManager.removeView(overlayView)
+        if (::view.isInitialized) {
+            windowManager.removeView(view)
         }
     }
 
