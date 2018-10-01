@@ -65,6 +65,11 @@ class MainActivity : AppCompatActivity(), OptionFragment.Callbacks {
         }
     }
 
+    override fun onDestroy() {
+        super.onDestroy()
+        projection.stop()
+    }
+
     private fun startGestureService() {
         val intent = Intent(this, GestureService::class.java)
         ContextCompat.startForegroundService(this, intent)
