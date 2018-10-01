@@ -1,16 +1,25 @@
 <resources>
     <!-- Names -->
     <string name="app_name">Flex Gestures</string>
-    <string name="notification_channel_service">Gesture service</string>
+    <string name="service_notification_channel">Gesture service</string>
 
     <!-- Actions-->
-    <string name="screenshot">Screenshot</string>
     <string name="start_service">Start service</string>
-    <string name="hide_nav">Hide navigation bar</string>
-    <string name="show_nav">Show navigation bar</string>
+    <string name="stop_service">Stop service</string>
+
+    <!-- Options -->
+    <string name="enable_service">Enable service</string>
+    <string name="enable_service_desc">Enable the gesture functionality of this app</string>
+    <string name="hide_navbar">Hide navigation bar</string>
+    <string name="hide_navbar_desc">Whether to hide the system navigation bar</string>
+
+    <string name="experimental">Experimental</string>
+    <string name="take_screenshot">Take screenshot</string>
+    <string name="take_screenshot_initial_desc">Tap to take a test screenshot for latency measurement</string>
+    <string name="take_screenshot_time_desc">Screenshot taken in %d ms</string>
 
     <!-- Messages -->
-    <string name="time_ms">%d ms</string>
+    <string name="service_notification_channel_desc">This notification prevents Android from stopping the app. It can be safely hidden.</string>
     <string name="service_notification_title">%s is active</string>
     <string name="service_notification_content">This notification keeps the app open. Long-press and tap the Settings icon to hide this.</string>
 </resources>

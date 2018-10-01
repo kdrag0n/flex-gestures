@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+    <SwitchPreference
+        android:title="@string/enable_service"
+        android:summary="@string/enable_service_desc"
+        android:icon="@drawable/ic_touch"
+        android:enabled="true"
+        android:key="service" />
+
+    <SwitchPreference
+        android:title="@string/hide_navbar"
+        android:summary="@string/hide_navbar_desc"
+        android:icon="@drawable/ic_align_bottom"
+        android:enabled="true"
+        android:key="hide_navbar" />
+
+    <PreferenceCategory android:title="@string/experimental">
+        <Preference
+            android:title="@string/take_screenshot"
+            android:summary="@string/take_screenshot_initial_desc"
+            android:icon="@drawable/ic_photo"
+            android:enabled="true"
+            android:key="screenshot" />
+    </PreferenceCategory>
+</PreferenceScreen>

@@ -7,8 +7,8 @@ import android.app.Service
 import android.content.Intent
 import android.graphics.PixelFormat
 import android.os.Build
+import android.os.Build.VERSION.SDK_INT as sdk
 import android.os.IBinder
-import android.util.DisplayMetrics
 import android.view.ContextThemeWrapper
 import android.view.Gravity
 import android.view.LayoutInflater
@@ -56,7 +56,7 @@ class GestureService : Service() {
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+        if (sdk >= 26) {
             createNotification()
         }
 
@@ -69,11 +69,12 @@ class GestureService : Service() {
         }
     }
 
-    @TargetApi(Build.VERSION_CODES.O)
+    @TargetApi(26)
     private fun createNotification() {
-        val channelName = getString(R.string.notification_channel_service)
+        val channelName = getString(R.string.service_notification_channel)
 
         val channel = NotificationChannel(SERVICE_NOTIFICATION_CHANNEL, channelName, NotificationManager.IMPORTANCE_MIN)
+        channel.description = getString(R.string.service_notification_channel_desc)
         val manager = getSystemService<NotificationManager>()
         manager?.createNotificationChannel(channel)
 
