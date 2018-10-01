@@ -16,6 +16,7 @@ import android.view.WindowManager
 import android.view.WindowManager.LayoutParams
 import android.widget.LinearLayout
 import androidx.core.app.NotificationCompat
+import androidx.core.content.ContextCompat
 import androidx.core.content.getSystemService
 
 class GestureService : Service() {
@@ -82,6 +83,7 @@ class GestureService : Service() {
                 .setStyle(NotificationCompat.BigTextStyle()
                         .setBigContentTitle(getString(R.string.service_notification_title, getString(R.string.app_name)))
                         .bigText(getString(R.string.service_notification_content)))
+                .setColor(ContextCompat.getColor(this, R.color.accent))
                 .setSmallIcon(R.drawable.ic_touch)
                 .setOnlyAlertOnce(true)
                 .setPriority(NotificationCompat.PRIORITY_MIN)
