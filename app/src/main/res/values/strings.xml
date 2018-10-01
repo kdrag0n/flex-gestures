@@ -4,8 +4,6 @@
     <string name="service_notification_channel">Gesture service</string>
 
     <!-- Actions-->
-    <string name="start_service">Start service</string>
-    <string name="stop_service">Stop service</string>
 
     <!-- Options -->
     <string name="enable_service">Enable service</string>
