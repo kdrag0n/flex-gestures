@@ -1,13 +1,8 @@
-package com.kdrag0n.flexgestures
+package com.kdrag0n.flexgestures.activities
 
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
-import android.graphics.Bitmap
-import android.graphics.PixelFormat
-import android.hardware.display.DisplayManager
-import android.hardware.display.VirtualDisplay
-import android.media.ImageReader
 import android.media.projection.MediaProjection
 import android.media.projection.MediaProjectionManager
 import android.net.Uri
@@ -15,11 +10,14 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Build.VERSION.SDK_INT as sdk
 import android.os.Bundle
 import android.provider.Settings
-import android.util.DisplayMetrics
-import androidx.annotation.UiThread
 import androidx.appcompat.widget.Toolbar
 import androidx.core.content.ContextCompat
 import androidx.preference.Preference
+import com.kdrag0n.flexgestures.BuildConfig
+import com.kdrag0n.flexgestures.GestureService
+import com.kdrag0n.flexgestures.OptionFragment
+import com.kdrag0n.flexgestures.R
+import com.kdrag0n.flexgestures.utils.takeScreenshot
 import com.kdrag0n.flexgestures.utils.PrivateWindowManager as PWM
 import kotlinx.android.synthetic.main.activity_main.*
 
@@ -50,10 +48,12 @@ class MainActivity : AppCompatActivity(), OptionFragment.Callbacks {
             when (requestCode) {
                 REQUEST_CODE_RECORD -> {
                     projection = projectionManager.getMediaProjection(resultCode, data ?: return)
-                    takeScreenshot { bitmap, timeMs ->
+                    takeScreenshot(windowManager, projection) { bitmap ->
                         imageView.setImageBitmap(bitmap)
                         val pref = optFrag.preferenceManager.findPreference("screenshot")
-                        pref.summary = getString(R.string.take_screenshot_time_desc, timeMs)
+
+                        val timeMs = System.currentTimeMillis() - beginTime
+                        pref.summary = getString(R.string.pref_take_screenshot_time_desc, timeMs)
                     }
                 }
                 REQUEST_CODE_OVERLAY -> {
@@ -85,9 +85,10 @@ class MainActivity : AppCompatActivity(), OptionFragment.Callbacks {
         if (!::projection.isInitialized) {
             startActivityForResult(projectionManager.createScreenCaptureIntent(), REQUEST_CODE_RECORD)
         } else {
-            takeScreenshot { bitmap, timeMs ->
+            takeScreenshot(windowManager, projection) { bitmap ->
                 imageView.setImageBitmap(bitmap)
-                preference.summary = getString(R.string.take_screenshot_time_desc, timeMs)
+                val timeMs = System.currentTimeMillis() - beginTime
+                preference.summary = getString(R.string.pref_take_screenshot_time_desc, timeMs)
             }
         }
     }
@@ -122,37 +123,6 @@ class MainActivity : AppCompatActivity(), OptionFragment.Callbacks {
         return null
     }
 
-    @UiThread
-    private fun takeScreenshot(callback: (Bitmap, Long) -> Unit) {
-        val metrics = DisplayMetrics().also {
-            windowManager.defaultDisplay.getMetrics(it)
-        }
-        val width = metrics.widthPixels
-        val height = metrics.heightPixels
-
-        val imageReader = ImageReader.newInstance(width, height, PixelFormat.RGBA_8888, 2)
-        val display = projection.createVirtualDisplay("screenshot", width, height, metrics.densityDpi, DisplayManager.VIRTUAL_DISPLAY_FLAG_AUTO_MIRROR or DisplayManager.VIRTUAL_DISPLAY_FLAG_PUBLIC, imageReader.surface, DisplayCallbacks(), null)
-
-        imageReader.setOnImageAvailableListener({ reader ->
-            display.release()
-
-            val image = reader.acquireLatestImage()
-            val buffer = image.planes[0].buffer
-            val rowStride = image.planes[0].rowStride
-            val pixelStride = image.planes[0].pixelStride
-            val rowPadding = rowStride - pixelStride * width
-
-            val bmWidth = width + rowPadding / pixelStride
-            val bitmap = Bitmap.createBitmap(bmWidth, height, Bitmap.Config.ARGB_8888)
-            bitmap.copyPixelsFromBuffer(buffer)
-
-            callback(bitmap, System.currentTimeMillis() - beginTime)
-
-            image.close()
-            reader.close()
-        }, null)
-    }
-
     private fun hideNavBar() {
         val navHeightId = resources.getIdentifier("navigation_bar_height", "dimen", "android")
         val navHeight = resources.getDimensionPixelSize(navHeightId)
@@ -162,16 +132,5 @@ class MainActivity : AppCompatActivity(), OptionFragment.Callbacks {
 
     private fun showNavBar() {
         PWM.setOverscan(display = 0, left = 0, top = 0, right = 0, bottom = 0)
-    }
-
-    private class DisplayCallbacks : VirtualDisplay.Callback() {
-        override fun onPaused() {
-        }
-
-        override fun onResumed() {
-        }
-
-        override fun onStopped() {
-        }
     }
 }

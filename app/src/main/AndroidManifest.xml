@@ -5,7 +5,6 @@
 
     <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
-
     <uses-permission
         android:name="android.permission.WRITE_SECURE_SETTINGS"
         tools:ignore="ProtectedPermissions" />
@@ -18,7 +17,7 @@
         android:supportsRtl="true"
         tools:ignore="GoogleAppIndexingWarning">
         <activity
-            android:name=".MainActivity"
+            android:name=".activities.MainActivity"
             android:theme="@style/LaunchTheme">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -31,6 +30,10 @@
             android:name=".GestureService"
             android:enabled="true"
             android:exported="false" />
+
+        <activity android:name=".activities.ScreenshotPermissionActivity"
+            android:theme="@android:style/Theme.NoDisplay"
+            android:excludeFromRecents="true" />
     </application>
 
 </manifest>

@@ -23,7 +23,7 @@ class GestureService : Service() {
     }
 
     private lateinit var windowManager: WindowManager
-    private lateinit var view: LinearLayout
+    private lateinit var layout: LinearLayout
 
     override fun onBind(intent: Intent): IBinder? {
         return null
@@ -34,11 +34,20 @@ class GestureService : Service() {
 
         val ctx = ContextThemeWrapper(this, R.style.AppTheme)
         val inflater = LayoutInflater.from(ctx)
-        view = inflater.inflate(R.layout.overlay_gestures, null, false) as LinearLayout
+        layout = inflater.inflate(R.layout.overlay_gestures, null, false) as LinearLayout
 
-        val touchView = view.findViewById<View>(R.id.touch_view)
+        val touchView = layout.findViewById<View>(R.id.touch_view)
         val bgColor = if (BuildConfig.DEBUG) R.color.debug_overlay_bg else android.R.color.transparent
         touchView.setBackgroundColor(ContextCompat.getColor(ctx, bgColor))
+
+        touchView.setOnTouchListener { _, event ->
+            when (event.action) {
+                MotionEvent.ACTION_DOWN -> {
+                }
+            }
+
+            true
+        }
 
         val params = LayoutParams(
                 /* width */ LayoutParams.MATCH_PARENT,
@@ -47,13 +56,13 @@ class GestureService : Service() {
                     LayoutParams.TYPE_APPLICATION_OVERLAY
                 else
                     LayoutParams.TYPE_PHONE,
-                LayoutParams.FLAG_NOT_FOCUSABLE or LayoutParams.FLAG_NOT_TOUCHABLE,
+                LayoutParams.FLAG_NOT_FOCUSABLE /*or LayoutParams.FLAG_NOT_TOUCHABLE*/,
                 PixelFormat.TRANSLUCENT
         )
 
         params.gravity = Gravity.BOTTOM or Gravity.START or Gravity.END
 
-        windowManager.addView(view, params)
+        windowManager.addView(layout, params)
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
@@ -65,8 +74,8 @@ class GestureService : Service() {
     }
 
     override fun onDestroy() {
-        if (::view.isInitialized) {
-            windowManager.removeView(view)
+        if (::layout.isInitialized) {
+            windowManager.removeView(layout)
         }
     }
 

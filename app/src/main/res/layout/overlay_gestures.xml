@@ -4,6 +4,13 @@
     android:layout_height="wrap_content"
     android:orientation="vertical">
 
+    <ImageView
+        android:id="@+id/screenshot_view"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:contentDescription="@string/screenshot"
+        android:visibility="gone"/>
+
     <View
         android:id="@+id/touch_view"
         android:layout_width="match_parent"

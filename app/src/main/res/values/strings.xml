@@ -4,17 +4,18 @@
     <string name="service_notification_channel">Gesture service</string>
 
     <!-- Actions-->
+    <string name="screenshot">Screenshot</string>
 
     <!-- Options -->
-    <string name="enable_service">Enable service</string>
-    <string name="enable_service_desc">Enable the gesture functionality of this app</string>
-    <string name="hide_navbar">Hide navigation bar</string>
-    <string name="hide_navbar_desc">Whether to hide the system navigation bar</string>
+    <string name="pref_enable_service">Enable service</string>
+    <string name="pref_enable_service_desc">Enable the gesture functionality of this app</string>
+    <string name="pref_hide_navbar">Hide navigation bar</string>
+    <string name="pref_hide_navbar_desc">Whether to hide the system navigation bar</string>
 
-    <string name="experimental">Experimental</string>
-    <string name="take_screenshot">Take screenshot</string>
-    <string name="take_screenshot_initial_desc">Tap to take a test screenshot for latency measurement</string>
-    <string name="take_screenshot_time_desc">Screenshot taken in %d ms</string>
+    <string name="pref_experimental">Experimental</string>
+    <string name="pref_take_screenshot">Take screenshot</string>
+    <string name="pref_take_screenshot_initial_desc">Tap to take a test screenshot for latency measurement</string>
+    <string name="pref_take_screenshot_time_desc">Screenshot taken in %d ms</string>
 
     <!-- Messages -->
     <string name="service_notification_channel_desc">This notification prevents Android from stopping the app. It can be safely hidden.</string>
