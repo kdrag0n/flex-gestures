@@ -4,15 +4,12 @@ import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.media.projection.MediaProjectionManager
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import com.kdrag0n.flexgestures.GestureService
 
-class ScreenshotPermissionActivity : AppCompatActivity() {
+class ScreenshotPermissionActivity : Activity() {
     companion object {
         private const val REQUEST_CODE_PROJECTION = 1
-
-        var screenshotPermission: Intent? = null
-        get() = field?.clone() as Intent?
     }
 
     private lateinit var projectionManager: MediaProjectionManager
@@ -25,14 +22,13 @@ class ScreenshotPermissionActivity : AppCompatActivity() {
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        setResult(resultCode, data?.clone() as Intent?)
-        /*if (requestCode == REQUEST_CODE_PROJECTION) {
-            screenshotPermission = when (resultCode) {
-                Activity.RESULT_OK -> data?.clone() as Intent?
-                Activity.RESULT_CANCELED -> null
-                else -> null
-            }
-        }*/
+        if (requestCode == REQUEST_CODE_PROJECTION && resultCode == Activity.RESULT_OK) {
+            val intent = Intent(this, GestureService::class.java)
+                    .putExtra(GestureService.EXTRA_RESULT_INTENT, data)
+            intent.action = GestureService.ACTION_PROJECTION_TOKEN
+
+            startService(intent)
+        }
 
         finish()
     }

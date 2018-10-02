@@ -1,0 +1,3 @@
+<resources>
+    <dimen name="touch_bar_height">16dp</dimen>
+</resources>
