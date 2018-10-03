@@ -98,3 +98,5 @@
 -keepclassmembernames class kotlinx.** {
     volatile <fields>;
 }
+
+-keep class com.kdrag0n.flexgestures.GestureService
