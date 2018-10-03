@@ -15,20 +15,24 @@ import android.media.projection.MediaProjectionManager
 import android.os.Build
 import android.os.Build.VERSION.SDK_INT as sdk
 import android.os.IBinder
-import android.util.Log
 import android.view.*
 import android.view.WindowManager.LayoutParams
 import android.widget.ImageView
+import android.widget.LinearLayout
 import androidx.core.app.NotificationCompat
 import androidx.core.content.ContextCompat
 import androidx.core.content.getSystemService
 import androidx.core.view.updatePadding
+import androidx.core.view.updatePaddingRelative
 import com.kdrag0n.flexgestures.activities.ScreenshotPermissionActivity
 import com.kdrag0n.flexgestures.touch.TouchState
 import com.kdrag0n.flexgestures.utils.takeScreenshot
 import kotlinx.coroutines.experimental.*
 import kotlinx.coroutines.experimental.android.*
 import kotlin.coroutines.experimental.suspendCoroutine
+import kotlin.math.abs
+import kotlin.math.pow
+import kotlin.math.sqrt
 
 class GestureService : Service(), CoroutineScope {
     companion object {
@@ -47,7 +51,7 @@ class GestureService : Service(), CoroutineScope {
     private lateinit var windowManager: WindowManager
     private lateinit var projection: MediaProjection
     private lateinit var projectionManager: MediaProjectionManager
-    private lateinit var touchView: ImageView
+    private lateinit var overlay: ImageView
 
     private lateinit var permissionCallback: () -> Unit
     private var projectionToken: Intent? = null
@@ -56,6 +60,9 @@ class GestureService : Service(), CoroutineScope {
     private var state = TouchState.NONE
     private var startX = 0.0f
     private var startY = 0.0f
+    private var lastX = 0.0f
+    private var lastY = 0.0f
+    private var lastTime = System.currentTimeMillis()
     private var screenshotDeferred: Deferred<Bitmap>? = null
 
     override fun onBind(intent: Intent): IBinder? {
@@ -68,8 +75,9 @@ class GestureService : Service(), CoroutineScope {
         projectionManager = getSystemService()!!
 
         val inflater = LayoutInflater.from(this)
-        touchView = inflater.inflate(R.layout.overlay_gestures, null, false) as ImageView
+        overlay = inflater.inflate(R.layout.overlay_gestures, null, false) as ImageView
 
+        val touchView = overlay
         val bgColor = if (BuildConfig.DEBUG) R.color.debug_overlay_bg else android.R.color.transparent
         touchView.setImageDrawable(ColorDrawable(ContextCompat.getColor(this, bgColor)))
 
@@ -77,8 +85,13 @@ class GestureService : Service(), CoroutineScope {
             when (event.actionMasked) {
                 MotionEvent.ACTION_DOWN -> {
                     state = TouchState.DOWN
+
+                    // set initial touch and last touch points, and time
                     startX = event.rawX
                     startY = event.rawY
+                    lastX = event.rawX
+                    lastY = event.rawY
+                    lastTime = System.currentTimeMillis()
 
                     // preemptively take a screenshot so it's more likely to be available by the time user swipes to threshold
                     launch {
@@ -89,12 +102,13 @@ class GestureService : Service(), CoroutineScope {
                 }
                 MotionEvent.ACTION_MOVE -> {
                     // calculate delta from first touch point
-                    val deltaY = startY - event.rawY
-                    val deltaX = startX - event.rawX
+                    val startDX = startX - event.rawX
+                    var startDY = startY - event.rawY
 
-                    // scale it with some acceleration
+                    startDY *= 1.75f
+
                     // move the screenshot/bar view up
-                    touchView.updatePadding(bottom = deltaY.toInt())
+                    overlay.updatePaddingRelative(bottom = startDY.toInt())
 
                     // user's swipe past the threshold
                     if (state != TouchState.SWIPE) {
@@ -113,6 +127,10 @@ class GestureService : Service(), CoroutineScope {
                             }
                         }
                     }
+
+                    //lastTime = now
+                    lastX = event.rawX
+                    lastY = event.rawY
                 }
                 MotionEvent.ACTION_UP -> {
                     state = TouchState.NONE
@@ -144,7 +162,7 @@ class GestureService : Service(), CoroutineScope {
 
         params.gravity = Gravity.BOTTOM or Gravity.START or Gravity.END
 
-        windowManager.addView(touchView, params)
+        windowManager.addView(overlay, params)
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
@@ -160,8 +178,8 @@ class GestureService : Service(), CoroutineScope {
     }
 
     override fun onDestroy() {
-        if (::touchView.isInitialized) {
-            windowManager.removeView(touchView)
+        if (::overlay.isInitialized) {
+            windowManager.removeView(overlay)
         }
     }
 

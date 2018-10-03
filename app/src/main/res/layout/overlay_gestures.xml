@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ImageView
     xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/overlayTouchView"
     android:layout_width="match_parent"
     android:layout_height="@dimen/touch_bar_height"
     android:minHeight="@dimen/touch_bar_height"
-    android:scaleType="fitXY"
+    android:scaleType="centerCrop"
     android:contentDescription="@string/app_name" />
