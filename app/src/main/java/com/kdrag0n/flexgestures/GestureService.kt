@@ -1,5 +1,6 @@
 package com.kdrag0n.flexgestures
 
+import android.annotation.SuppressLint
 import android.annotation.TargetApi
 import android.app.Activity
 import android.app.NotificationChannel
@@ -14,16 +15,20 @@ import android.media.projection.MediaProjectionManager
 import android.os.Build
 import android.os.Build.VERSION.SDK_INT as sdk
 import android.os.IBinder
+import android.util.Log
 import android.view.*
 import android.view.WindowManager.LayoutParams
 import android.widget.ImageView
 import androidx.core.app.NotificationCompat
 import androidx.core.content.ContextCompat
 import androidx.core.content.getSystemService
+import androidx.core.view.updatePadding
 import com.kdrag0n.flexgestures.activities.ScreenshotPermissionActivity
+import com.kdrag0n.flexgestures.touch.TouchState
 import com.kdrag0n.flexgestures.utils.takeScreenshot
 import kotlinx.coroutines.experimental.*
 import kotlinx.coroutines.experimental.android.*
+import kotlin.coroutines.experimental.suspendCoroutine
 
 class GestureService : Service(), CoroutineScope {
     companion object {
@@ -48,10 +53,16 @@ class GestureService : Service(), CoroutineScope {
     private var projectionToken: Intent? = null
         get() = field?.clone() as Intent?
 
+    private var state = TouchState.NONE
+    private var startX = 0.0f
+    private var startY = 0.0f
+    private var screenshotDeferred: Deferred<Bitmap>? = null
+
     override fun onBind(intent: Intent): IBinder? {
         return null
     }
 
+    @SuppressLint("ClickableViewAccessibility")
     override fun onCreate() {
         windowManager = getSystemService()!!
         projectionManager = getSystemService()!!
@@ -62,38 +73,63 @@ class GestureService : Service(), CoroutineScope {
         val bgColor = if (BuildConfig.DEBUG) R.color.debug_overlay_bg else android.R.color.transparent
         touchView.setImageDrawable(ColorDrawable(ContextCompat.getColor(this, bgColor)))
 
-        touchView.setOnClickListener { _ ->
-            launch {
-                takeScreenshot {
-                    touchView.setImageBitmap(it)
-                }
-            }
-        }
-        /*
         touchView.setOnTouchListener { _, event ->
             when (event.actionMasked) {
                 MotionEvent.ACTION_DOWN -> {
-                    launch {
-                        val data = async(Dispatchers.IO) {
-                            Thread.sleep(1000)
-                            return@async R.color.btn_green
-                        }.await()
+                    state = TouchState.DOWN
+                    startX = event.rawX
+                    startY = event.rawY
 
-                        touchView.setBackgroundColor(ContextCompat.getColor(ctx, data))
+                    // preemptively take a screenshot so it's more likely to be available by the time user swipes to threshold
+                    launch {
+                        if (screenshotDeferred == null) {
+                            screenshotDeferred = takeScreenshot()
+                        }
                     }
                 }
                 MotionEvent.ACTION_MOVE -> {
-                    val drawable = touchView.background as ColorDrawable
-                    drawable.color += 4
+                    // calculate delta from first touch point
+                    val deltaY = startY - event.rawY
+                    val deltaX = startX - event.rawX
 
-                    touchView.updateLayoutParams {
-                        height += 4
+                    // scale it with some acceleration
+                    // move the screenshot/bar view up
+                    touchView.updatePadding(bottom = deltaY.toInt())
+
+                    // user's swipe past the threshold
+                    if (state != TouchState.SWIPE) {
+                        state = TouchState.SWIPE
+
+                        // show the screenshot now
+                        launch {
+                            // in case somehow, this triggers before ACTION_DOWN or ACTION_UP does not trigger
+                            if (screenshotDeferred == null) {
+                                screenshotDeferred = takeScreenshot()
+                            }
+
+                            val screenshot = screenshotDeferred!!.await()
+                            if (state == TouchState.SWIPE) {
+                                touchView.setImageBitmap(screenshot)
+                            }
+                        }
                     }
+                }
+                MotionEvent.ACTION_UP -> {
+                    state = TouchState.NONE
+
+                    // reset to touch bar appearance
+                    touchView.setImageDrawable(ColorDrawable(ContextCompat.getColor(this, bgColor)))
+
+                    // bring it back down
+                    touchView.updatePadding(bottom = 0)
+
+                    // clear the consumed screenshooter coroutine
+                    screenshotDeferred = null
                 }
             }
 
             true
-        }*/
+        }
 
         val params = LayoutParams(
                 /* width */ LayoutParams.MATCH_PARENT,
@@ -129,7 +165,17 @@ class GestureService : Service(), CoroutineScope {
         }
     }
 
-    private fun takeScreenshot(callback: (Bitmap) -> Unit) {
+    private suspend fun takeScreenshot(): Deferred<Bitmap> {
+        val lock = java.lang.Object()
+        lateinit var result: Bitmap
+
+        val callback = { bitmap: Bitmap ->
+            result = bitmap
+            synchronized(lock) {
+                lock.notify()
+            }
+        }
+
         if (::projection.isInitialized) {
             takeScreenshot(windowManager, projection, callback)
         } else {
@@ -141,6 +187,15 @@ class GestureService : Service(), CoroutineScope {
             } else {
                 projection = projectionManager.getMediaProjection(Activity.RESULT_OK, projectionToken!!)
                 takeScreenshot(windowManager, projection, callback)
+            }
+        }
+
+        return async(Dispatchers.Default) {
+            suspendCoroutine<Bitmap> {
+                synchronized(lock) {
+                    lock.wait()
+                }
+                it.resume(result)
             }
         }
     }

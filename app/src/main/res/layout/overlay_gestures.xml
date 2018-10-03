@@ -5,5 +5,4 @@
     android:layout_height="@dimen/touch_bar_height"
     android:minHeight="@dimen/touch_bar_height"
     android:scaleType="fitXY"
-    android:contentDescription="@string/app_name"
-    android:background="@color/debug_overlay_bg" />
+    android:contentDescription="@string/app_name" />
